@@ -5,7 +5,7 @@ dotenv.config();
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 
-const app = express(); // 👈 Agora isso vem antes do app.use()
+const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware para JSON
@@ -22,7 +22,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Rotas de autenticação (login)
 const authRoutes = require('./routes/authRoutes');
-app.use(authRoutes); // POST /login
+app.use(authRoutes);
 
 // Rotas de usuários (protegidas com middleware nas rotas)
 const userRoutes = require('./routes/userRoutes');
@@ -35,6 +35,10 @@ app.use('/chamados', chamadoRoutes);
 // Sub-rotas de status dos chamados
 const statusRoutes = require('./routes/statusRoutes');
 app.use('/chamados/:chamado_id/status', statusRoutes);
+
+// NOVO: Sub-rotas para anexos de chamados
+const anexoRoutes = require('./routes/anexoRoutes');
+app.use('/chamados/:chamado_id/anexos', anexoRoutes);
 
 // ============================
 // 🌐 Rota base

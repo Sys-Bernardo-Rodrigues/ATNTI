@@ -52,6 +52,18 @@ const ChamadoModel = {
     );
     return result.rows[0];
   },
+  
+  // NOVO: Método para atribuir um chamado a um usuário
+  async atribuirResponsavel(id, responsavel_id) {
+    const result = await db.query(
+      `UPDATE chamados
+       SET responsavel_id = $1
+       WHERE id = $2
+       RETURNING *`,
+      [responsavel_id, id]
+    );
+    return result.rows[0];
+  },
 
   async delete(id) {
     await db.query('DELETE FROM chamados WHERE id = $1', [id]);

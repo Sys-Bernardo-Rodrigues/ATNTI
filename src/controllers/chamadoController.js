@@ -65,6 +65,26 @@ const ChamadoController = {
       res.status(500).json({ erro: 'Erro ao atualizar chamado' });
     }
   },
+  
+  // NOVO: Atribui um chamado a um usuário
+  async atribuir(req, res) {
+    try {
+      const { id } = req.params;
+      const { responsavel_id } = req.body;
+
+      const chamadoExistente = await ChamadoModel.findById(id);
+      if (!chamadoExistente) {
+        return res.status(404).json({ erro: 'Chamado não encontrado' });
+      }
+
+      const chamadoAtualizado = await ChamadoModel.atribuirResponsavel(id, responsavel_id);
+
+      res.json(chamadoAtualizado);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ erro: 'Erro ao atribuir chamado' });
+    }
+  },
 
   async delete(req, res) {
     try {

@@ -35,7 +35,7 @@ const UserModel = {
   },
 
   async findById(id) {
-    const result = await db.query('SELECT id, nome, email FROM usuarios WHERE id = $1', [id]);
+    const result = await db.query('SELECT id, nome, email, senha FROM usuarios WHERE id = $1', [id]);
     return result.rows[0];
   },
 
@@ -45,6 +45,14 @@ const UserModel = {
       [nome, email, id]
     );
     return result.rows[0];
+  },
+  
+  // NOVO: Método para atualizar apenas a senha
+  async updatePassword(id, novaSenha) {
+    await db.query(
+      'UPDATE usuarios SET senha = $1 WHERE id = $2',
+      [novaSenha, id]
+    );
   },
 
   async delete(id) {

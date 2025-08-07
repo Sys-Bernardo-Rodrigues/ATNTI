@@ -12,7 +12,13 @@ const schemaChamadoUpdate = Joi.object({
   descricao: Joi.string().min(5).required()
 });
 
+// NOVO: Esquema de validação para atribuição de chamado
+const schemaChamadoAtribuir = Joi.object({
+  responsavel_id: Joi.number().integer().required()
+});
+
 module.exports = {
   schemaChamadoCreate,
-  schemaChamadoUpdate
+  schemaChamadoUpdate,
+  schemaChamadoAtribuir // exporte o novo esquema
 };

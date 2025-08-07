@@ -58,6 +58,46 @@ const UserController = {
       res.status(500).json({ erro: 'Erro ao atualizar usuário' });
     }
   },
+  
+  // NOVO: Atualiza o perfil do próprio usuário
+  async updateProfile(req, res) {
+    try {
+      const { id } = req.usuario; // Pega o ID do usuário do token
+      const { nome, email } = req.body;
+
+      const user = await UserModel.update(id, { nome, email });
+      res.json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ erro: 'Erro ao atualizar o próprio perfil' });
+    }
+  },
+
+  // NOVO: Permite ao usuário logado alterar sua senha
+  async updatePassword(req, res) {
+    try {
+      const { id } = req.usuario; // Pega o ID do usuário do token
+      const { senhaAntiga, novaSenha } = req.body;
+
+      const user = await UserModel.findById(id); // Busca o usuário para comparar a senha
+      if (!user) {
+        return res.status(404).json({ erro: 'Usuário não encontrado' });
+      }
+
+      const senhaValida = await bcrypt.compare(senhaAntiga, user.senha);
+      if (!senhaValida) {
+        return res.status(400).json({ erro: 'Senha antiga incorreta' });
+      }
+
+      const hashed = await bcrypt.hash(novaSenha, 10);
+      await UserModel.updatePassword(id, hashed);
+
+      res.status(204).send();
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ erro: 'Erro ao alterar a senha' });
+    }
+  },
 
   async delete(req, res) {
     try {

@@ -12,7 +12,14 @@ const schemaUsuarioUpdate = Joi.object({
   email: Joi.string().email().required()
 });
 
+// Novo esquema para alteração de senha
+const schemaSenhaUpdate = Joi.object({
+  senhaAntiga: Joi.string().min(6).required(),
+  novaSenha: Joi.string().min(6).required()
+});
+
 module.exports = {
   schemaUsuarioCreate,
-  schemaUsuarioUpdate
+  schemaUsuarioUpdate,
+  schemaSenhaUpdate
 };
