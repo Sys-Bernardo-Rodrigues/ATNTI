@@ -15,7 +15,7 @@ Uma API RESTful para um sistema de atendimento técnico interno, onde usuários 
 * **`multer`**: Middleware para lidar com upload de arquivos.
 
 ### Estrutura do Projeto
-
+```
 A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma organização clara das responsabilidades:
 .
 ├── node_modules/
@@ -60,6 +60,7 @@ A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma o
 ├── index.js                # Ponto de entrada da aplicação
 ├── package.json
 └── README.md
+```
 
 ### Funcionalidades
 
