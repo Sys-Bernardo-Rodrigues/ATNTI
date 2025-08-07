@@ -36,9 +36,13 @@ app.use('/chamados', chamadoRoutes);
 const statusRoutes = require('./routes/statusRoutes');
 app.use('/chamados/:chamado_id/status', statusRoutes);
 
-// NOVO: Sub-rotas para anexos de chamados
+// Sub-rotas para anexos de chamados
 const anexoRoutes = require('./routes/anexoRoutes');
 app.use('/chamados/:chamado_id/anexos', anexoRoutes);
+
+// NOVO: Rotas de notificações
+const notificacaoRoutes = require('./routes/notificacaoRoutes');
+app.use('/notificacoes', notificacaoRoutes);
 
 // ============================
 // 🌐 Rota base
@@ -53,14 +57,6 @@ app.get('/', (req, res) => {
 app.use((req, res) => {
   res.status(404).json({ erro: 'Rota não encontrada.' });
 });
-
-// ============================
-// ❗Erro interno (opcional)
-// ============================
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(500).json({ erro: 'Erro interno do servidor.' });
-// });
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);

@@ -1,6 +1,6 @@
 # Sistema de Atendimento T.I.
 
-Uma API RESTful para um sistema de atendimento técnico interno, onde usuários podem abrir e gerenciar chamados de suporte. O sistema inclui funcionalidades de autenticação, gestão de usuários com diferentes níveis de acesso, gestão de chamados, atualização de status, adição de comentários e upload de anexos.
+Uma API RESTful para um sistema de atendimento técnico interno, onde usuários podem abrir e gerenciar chamados de suporte. O sistema inclui funcionalidades de autenticação, gestão de usuários com diferentes níveis de acesso, gestão de chamados, atualização de status, adição de comentários e upload de anexos, busca, histórico de chamados por usuário e um sistema de notificação.
 
 ### Tecnologias
 
@@ -15,8 +15,9 @@ Uma API RESTful para um sistema de atendimento técnico interno, onde usuários 
 * **`multer`**: Middleware para lidar com upload de arquivos.
 
 ### Estrutura do Projeto
-```
+
 A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma organização clara das responsabilidades:
+```
 .
 ├── node_modules/
 ├── src/
@@ -26,11 +27,12 @@ A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma o
 │   │   └── swagger.js      # Configuração da documentação Swagger
 │   │
 │   ├── controllers/        # Lógica de negócio da aplicação
-│   │   ├── anexoController.js  # Lógica para upload e download de anexos
-│   │   ├── authController.js   # Lógica de login e geração de token
-│   │   ├── chamadoController.js# Lógica para gerenciar chamados
-│   │   ├── statusController.js # Lógica para gerenciar status de chamados
-│   │   └── userController.js   # Lógica para gerenciar usuários
+│   │   ├── anexoController.js      # Lógica para upload e download de anexos
+│   │   ├── authController.js       # Lógica de login e geração de token
+│   │   ├── chamadoController.js    # Lógica para gerenciar chamados
+│   │   ├── notificacaoController.js# Lógica para gerenciar notificações
+│   │   ├── statusController.js     # Lógica para gerenciar status de chamados
+│   │   └── userController.js       # Lógica para gerenciar usuários
 │   │
 │   ├── middlewares/        # Middlewares para autenticação e validação
 │   │   ├── authMiddleware.js   # Validação de token JWT
@@ -40,6 +42,7 @@ A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma o
 │   ├── models/             # Interação com o banco de dados
 │   │   ├── anexoModel.js   # Métodos para gerenciar anexos
 │   │   ├── chamadoModel.js # Métodos para gerenciar chamados
+│   │   ├── notificacaoModel.js# Métodos para gerenciar notificações
 │   │   ├── statusModel.js  # Métodos para gerenciar status e comentários
 │   │   └── userModel.js    # Métodos para gerenciar usuários
 │   │
@@ -47,6 +50,7 @@ A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma o
 │   │   ├── anexoRoutes.js  # Rotas para anexos de chamados
 │   │   ├── authRoutes.js   # Rota de login
 │   │   ├── chamadoRoutes.js# Rotas para chamados
+│   │   ├── notificacaoRoutes.js# Rotas para notificações
 │   │   ├── statusRoutes.js # Rotas para status de chamados
 │   │   └── userRoutes.js   # Rotas para usuários e perfil
 │   │
@@ -69,10 +73,12 @@ A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma o
 * **Gerenciamento de Usuários**:
     * `POST /usuarios`: Cria um novo usuário (apenas administradores).
     * `GET /usuarios`: Lista todos os usuários (apenas administradores).
+    * `GET /usuarios/{id}/chamados`: Lista todos os chamados abertos por um usuário específico (apenas administradores).
     * `PUT /perfil`: Permite que o usuário logado atualize suas próprias informações.
     * `PUT /perfil/senha`: Permite que o usuário logado altere sua senha, verificando a senha antiga.
 * **Gerenciamento de Chamados**:
     * `POST /chamados`: Cria um novo chamado.
+    * `GET /chamados/search?q=...`: Busca chamados por título, descrição ou protocolo.
     * `PUT /chamados/{id}/atribuir`: Atribui um chamado a um usuário (apenas administradores).
 * **Status e Comentários**:
     * `POST /chamados/{chamado_id}/status`: Adiciona um novo status ou comentário a um chamado.
@@ -80,6 +86,9 @@ A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma o
     * `POST /chamados/{chamado_id}/anexos`: Faz o upload de um arquivo para um chamado.
     * `GET /chamados/{chamado_id}/anexos`: Lista todos os anexos de um chamado.
     * `GET /chamados/{chamado_id}/anexos/{id}/download`: Faz o download de um anexo específico.
+* **Notificações**:
+    * `GET /notificacoes`: Lista todas as notificações do usuário logado.
+    * `PUT /notificacoes/{id}/lida`: Marca uma notificação específica como lida.
 
 ### Configuração e Execução
 
@@ -94,7 +103,7 @@ A arquitetura do projeto segue um padrão MVC (Model-View-Controller), com uma o
     ```
 3.  **Configure o banco de dados:**
     * Crie um banco de dados PostgreSQL.
-    * Crie as tabelas `usuarios`, `chamados`, `chamado_status` e `chamado_anexos`.
+    * Crie as tabelas `usuarios`, `chamados`, `chamado_status`, `chamado_anexos` e `notificacoes`.
 4.  **Crie o arquivo `.env`:**
     * Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
         ```

@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModel');
+const ChamadoModel = require('../models/chamadoModel');
 
 const UserController = {
   async create(req, res) {
@@ -45,7 +46,6 @@ const UserController = {
     try {
       const { nome, email } = req.body;
 
-      // Verifica existência do usuário
       const existente = await UserModel.findById(req.params.id);
       if (!existente) {
         return res.status(404).json({ erro: 'Usuário não encontrado' });
@@ -59,10 +59,9 @@ const UserController = {
     }
   },
   
-  // NOVO: Atualiza o perfil do próprio usuário
   async updateProfile(req, res) {
     try {
-      const { id } = req.usuario; // Pega o ID do usuário do token
+      const { id } = req.usuario;
       const { nome, email } = req.body;
 
       const user = await UserModel.update(id, { nome, email });
@@ -73,13 +72,12 @@ const UserController = {
     }
   },
 
-  // NOVO: Permite ao usuário logado alterar sua senha
   async updatePassword(req, res) {
     try {
-      const { id } = req.usuario; // Pega o ID do usuário do token
+      const { id } = req.usuario;
       const { senhaAntiga, novaSenha } = req.body;
 
-      const user = await UserModel.findById(id); // Busca o usuário para comparar a senha
+      const user = await UserModel.findById(id);
       if (!user) {
         return res.status(404).json({ erro: 'Usuário não encontrado' });
       }
@@ -111,6 +109,21 @@ const UserController = {
     } catch (err) {
       console.error(err);
       res.status(500).json({ erro: 'Erro ao deletar usuário' });
+    }
+  },
+
+  // NOVO: Retorna todos os chamados abertos por um usuário específico
+  async getChamadosDoUsuario(req, res) {
+    try {
+      const { id } = req.params;
+      const chamados = await ChamadoModel.findByUsuarioId(id);
+      if (!chamados.length) {
+        return res.status(404).json({ erro: 'Nenhum chamado encontrado para este usuário.' });
+      }
+      res.json(chamados);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ erro: 'Erro ao buscar chamados do usuário.' });
     }
   }
 };

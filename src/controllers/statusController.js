@@ -1,19 +1,18 @@
 const StatusModel = require('../models/statusModel');
+const NotificacaoModel = require('../models/notificacaoModel'); // NOVO
 
 const StatusController = {
   async create(req, res) {
     try {
       const { chamado_id } = req.params;
       const { status, comentario } = req.body;
-      const usuario_id = req.usuario.id; // ✅ do token
+      const usuario_id = req.usuario.id;
 
-      // 🔍 Verifica se chamado existe (opcional, mas recomendado)
       const chamadoExiste = await StatusModel.verificarChamado(chamado_id);
       if (!chamadoExiste) {
         return res.status(404).json({ erro: 'Chamado não encontrado.' });
       }
 
-      // ⛔ Bloqueia se já finalizado
       const ultimoStatus = await StatusModel.getUltimoStatus(chamado_id);
       if (ultimoStatus && ultimoStatus.status === 'finalizado') {
         return res.status(400).json({
@@ -21,14 +20,23 @@ const StatusController = {
         });
       }
 
-      // ✅ Registra novo status
       const novoStatus = await StatusModel.add({
         chamado_id,
         status,
         comentario,
         usuario_id
       });
-
+      
+      // NOVO: Cria notificação para o usuário do chamado
+      const chamado = await StatusModel.findChamadoById(chamado_id);
+      if (chamado) {
+        await NotificacaoModel.add({
+          usuario_id: chamado.usuario_id,
+          chamado_id: chamado.id,
+          mensagem: `O status do seu chamado "${chamado.titulo}" foi alterado para "${status}".`
+        });
+      }
+      
       res.status(201).json(novoStatus);
     } catch (err) {
       console.error(err);

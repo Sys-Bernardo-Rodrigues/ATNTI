@@ -42,6 +42,22 @@ const {
  *       responses:
  *         '200': { description: Lista de chamados }
  *
+ *   /chamados/search:
+ *     get:
+ *       summary: Busca chamados por título, descrição ou protocolo
+ *       tags: [Chamados]
+ *       security:
+ *         - bearerAuth: []
+ *       parameters:
+ *         - in: query
+ *           name: q
+ *           required: true
+ *           schema: { type: string }
+ *           description: Termo de busca para título, descrição ou protocolo
+ *       responses:
+ *         '200': { description: Lista de chamados encontrados }
+ *         '400': { description: Parâmetro de busca ausente }
+ *
  *   /chamados/{id}:
  *     parameters:
  *       - in: path
@@ -117,12 +133,7 @@ const {
  *         descricao:  { type: string }
  *         prioridade: { type: string, enum: [baixa, media, alta] }
  *
- *     AtualizarChamado:
- *       allOf:
- *         - $ref: '#/components/schemas/NovoChamado'
  */
-
- /* ---------- Rotas ---------- */
 
  // Criar chamado
  router.post(
@@ -134,6 +145,9 @@ const {
 
  // Listar chamados
  router.get('/', autenticarToken, ChamadoController.index);
+
+ // Buscar chamados
+ router.get('/search', autenticarToken, ChamadoController.search);
 
  // Obter chamado por ID
  router.get('/:id', autenticarToken, ChamadoController.show);

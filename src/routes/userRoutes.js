@@ -1,15 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const UserController      = require('../controllers/userController');
-const autenticarToken     = require('../middlewares/authMiddleware');
-const verificarAdmin      = require('../middlewares/isAdmin');
-const validarRequisicao   = require('../middlewares/validarRequisicao');
-const {
-  schemaUsuarioCreate,
-  schemaUsuarioUpdate,
-  schemaSenhaUpdate,
-} = require('../validators/usuarioValidator');
+const UserController = require('../controllers/userController');
+const autenticarToken = require('../middlewares/authMiddleware');
+const verificarAdmin = require('../middlewares/isAdmin');
+const validarRequisicao = require('../middlewares/validarRequisicao');
+const { schemaUsuarioCreate, schemaUsuarioUpdate, schemaSenhaUpdate } = require('../validators/usuarioValidator');
 
 /**
  * @swagger
@@ -101,6 +97,23 @@ const {
  *         '403': { description: Acesso negado }
  *         '404': { description: Usuário não encontrado }
  *
+ *   /usuarios/{id}/chamados:
+ *     get:
+ *       summary: Lista todos os chamados abertos por um usuário (admin)
+ *       tags: [Usuários]
+ *       security:
+ *         - bearerAuth: []
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *           required: true
+ *           schema: { type: integer }
+ *           description: ID do usuário para buscar os chamados
+ *       responses:
+ *         '200': { description: Lista de chamados do usuário }
+ *         '404': { description: Nenhum chamado encontrado para este usuário }
+ *         '403': { description: Acesso negado }
+ *
  *   /perfil:
  *     put:
  *       summary: Atualiza o perfil do usuário logado
@@ -143,15 +156,14 @@ const {
  *         '401': { description: Não autorizado }
  */
 
-/* Rotas de Usuários */
 router.post('/', autenticarToken, verificarAdmin, validarRequisicao(schemaUsuarioCreate), UserController.create);
-router.get('/',  autenticarToken, verificarAdmin, UserController.index);
+router.get('/', autenticarToken, verificarAdmin, UserController.index);
 router.get('/:id', autenticarToken, verificarAdmin, UserController.show);
 router.put('/:id', autenticarToken, verificarAdmin, validarRequisicao(schemaUsuarioUpdate), UserController.update);
 router.delete('/:id', autenticarToken, verificarAdmin, UserController.delete);
-
-/* Rotas de Perfil */
-router.put('/perfil',        autenticarToken, validarRequisicao(schemaUsuarioUpdate), UserController.updateProfile);
-router.put('/perfil/senha',  autenticarToken, validarRequisicao(schemaSenhaUpdate),  UserController.updatePassword);
+router.put('/perfil', autenticarToken, validarRequisicao(schemaUsuarioUpdate), UserController.updateProfile);
+router.put('/perfil/senha', autenticarToken, validarRequisicao(schemaSenhaUpdate), UserController.updatePassword);
+// NOVO: Rota para buscar os chamados de um usuário
+router.get('/:id/chamados', autenticarToken, verificarAdmin, UserController.getChamadosDoUsuario);
 
 module.exports = router;

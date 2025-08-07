@@ -30,6 +30,16 @@ const ChamadoModel = {
     return result.rows;
   },
 
+  async search(query) {
+    const termo = `%${query}%`;
+    const result = await db.query(
+      `SELECT * FROM chamados
+       WHERE titulo ILIKE $1 OR descricao ILIKE $1 OR protocolo ILIKE $1`,
+      [termo]
+    );
+    return result.rows;
+  },
+
   async findById(id) {
     const result = await db.query(`
       SELECT c.*, u.nome AS nome_usuario
@@ -38,6 +48,15 @@ const ChamadoModel = {
       WHERE c.id = $1
     `, [id]);
     return result.rows[0];
+  },
+  
+  // NOVO: Busca todos os chamados de um usuário
+  async findByUsuarioId(usuario_id) {
+    const result = await db.query(
+      `SELECT c.* FROM chamados c WHERE usuario_id = $1 ORDER BY c.aberto_em DESC`,
+      [usuario_id]
+    );
+    return result.rows;
   },
 
   async update(id, { prioridade, titulo, descricao }) {
@@ -52,8 +71,7 @@ const ChamadoModel = {
     );
     return result.rows[0];
   },
-  
-  // NOVO: Método para atribuir um chamado a um usuário
+
   async atribuirResponsavel(id, responsavel_id) {
     const result = await db.query(
       `UPDATE chamados

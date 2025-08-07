@@ -22,7 +22,7 @@ const StatusModel = {
     `, [chamado_id]);
     return result.rows;
   },
-  
+
   async getUltimoStatus(chamado_id) {
     const result = await db.query(`
       SELECT s.*, u.nome AS nome_usuario
@@ -40,6 +40,14 @@ const StatusModel = {
       SELECT 1 FROM chamados WHERE id = $1
     `, [chamado_id]);
     return result.rowCount > 0;
+  },
+  
+  // NOVO: Método para buscar um chamado por ID
+  async findChamadoById(chamado_id) {
+    const result = await db.query(`
+      SELECT * FROM chamados WHERE id = $1
+    `, [chamado_id]);
+    return result.rows[0];
   }
 };
 
