@@ -3,11 +3,10 @@ const path       = require('path');
 const fs         = require('fs');
 
 const AnexoController = {
-  async upload(req, res) {
+  async upload(req, res, next) {
     try {
       const { chamado_id } = req.params;
       
-      // ✅ NOVO: Verificação para garantir que o arquivo foi enviado
       if (!req.file) {
         return res.status(400).json({ erro: 'Nenhum arquivo foi enviado.' });
       }
@@ -28,23 +27,21 @@ const AnexoController = {
         anexo
       });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao fazer upload do anexo' });
+      next(err);
     }
   },
 
-  async list(req, res) {
+  async list(req, res, next) {
     try {
       const { chamado_id } = req.params;
       const anexos = await AnexoModel.findByChamado(chamado_id);
       res.json(anexos);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao listar anexos' });
+      next(err);
     }
   },
 
-  async download(req, res) {
+  async download(req, res, next) {
     try {
       const anexo = await AnexoModel.findById(req.params.id);
       if (!anexo) {
@@ -52,10 +49,13 @@ const AnexoController = {
       }
 
       const filePath = path.resolve(anexo.caminho);
-      res.download(filePath, anexo.nome_arquivo);
+      res.download(filePath, anexo.nome_arquivo, (err) => {
+        if (err) {
+          next(err);
+        }
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao baixar o anexo' });
+      next(err);
     }
   }
 };

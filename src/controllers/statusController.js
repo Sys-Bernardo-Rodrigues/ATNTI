@@ -1,8 +1,8 @@
 const StatusModel = require('../models/statusModel');
-const NotificacaoModel = require('../models/notificacaoModel'); // NOVO
+const NotificacaoModel = require('../models/notificacaoModel');
 
 const StatusController = {
-  async create(req, res) {
+  async create(req, res, next) {
     try {
       const { chamado_id } = req.params;
       const { status, comentario } = req.body;
@@ -27,7 +27,6 @@ const StatusController = {
         usuario_id
       });
       
-      // NOVO: Cria notificação para o usuário do chamado
       const chamado = await StatusModel.findChamadoById(chamado_id);
       if (chamado) {
         await NotificacaoModel.add({
@@ -39,23 +38,21 @@ const StatusController = {
       
       res.status(201).json(novoStatus);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro interno ao registrar o status.' });
+      next(err);
     }
   },
 
-  async list(req, res) {
+  async list(req, res, next) {
     try {
       const { chamado_id } = req.params;
       const historico = await StatusModel.listByChamado(chamado_id);
       res.json(historico);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao buscar histórico de status.' });
+      next(err);
     }
   },
 
-  async getStatusAtual(req, res) {
+  async getStatusAtual(req, res, next) {
     try {
       const { chamado_id } = req.params;
       const status = await StatusModel.getUltimoStatus(chamado_id);
@@ -64,8 +61,7 @@ const StatusController = {
       }
       res.json(status);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao buscar status atual.' });
+      next(err);
     }
   }
 };

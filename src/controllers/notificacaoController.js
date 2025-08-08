@@ -1,20 +1,17 @@
 const NotificacaoModel = require('../models/notificacaoModel');
 
 const NotificacaoController = {
-  // Lista todas as notificações de um usuário logado
-  async list(req, res) {
+  async list(req, res, next) {
     try {
       const usuario_id = req.usuario.id;
       const notificacoes = await NotificacaoModel.listByUsuario(usuario_id);
       res.json(notificacoes);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao listar notificações' });
+      next(err);
     }
   },
 
-  // Marca uma notificação específica como lida
-  async marcarComoLida(req, res) {
+  async marcarComoLida(req, res, next) {
     try {
       const { id } = req.params;
       const usuario_id = req.usuario.id;
@@ -26,8 +23,7 @@ const NotificacaoController = {
 
       res.status(200).json(notificacao);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao marcar notificação como lida' });
+      next(err);
     }
   }
 };

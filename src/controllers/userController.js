@@ -3,7 +3,7 @@ const UserModel = require('../models/userModel');
 const ChamadoModel = require('../models/chamadoModel');
 
 const UserController = {
-  async create(req, res) {
+  async create(req, res, next) {
     try {
       const { nome, email, senha } = req.body;
       const hashed = await bcrypt.hash(senha, 10);
@@ -13,23 +13,20 @@ const UserController = {
       if (err.message === 'E-mail já cadastrado') {
         return res.status(400).json({ erro: err.message });
       }
-
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao criar usuário' });
+      next(err);
     }
   },
 
-  async index(req, res) {
+  async index(req, res, next) {
     try {
       const users = await UserModel.findAll();
       res.json(users);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao listar usuários' });
+      next(err);
     }
   },
 
-  async show(req, res) {
+  async show(req, res, next) {
     try {
       const user = await UserModel.findById(req.params.id);
       if (!user) {
@@ -37,12 +34,11 @@ const UserController = {
       }
       res.json(user);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao buscar usuário' });
+      next(err);
     }
   },
 
-  async update(req, res) {
+  async update(req, res, next) {
     try {
       const { nome, email } = req.body;
 
@@ -54,12 +50,11 @@ const UserController = {
       const user = await UserModel.update(req.params.id, { nome, email });
       res.json(user);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao atualizar usuário' });
+      next(err);
     }
   },
   
-  async updateProfile(req, res) {
+  async updateProfile(req, res, next) {
     try {
       const { id } = req.usuario;
       const { nome, email } = req.body;
@@ -67,12 +62,11 @@ const UserController = {
       const user = await UserModel.update(id, { nome, email });
       res.json(user);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao atualizar o próprio perfil' });
+      next(err);
     }
   },
 
-  async updatePassword(req, res) {
+  async updatePassword(req, res, next) {
     try {
       const { id } = req.usuario;
       const { senhaAntiga, novaSenha } = req.body;
@@ -92,12 +86,11 @@ const UserController = {
 
       res.status(204).send();
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao alterar a senha' });
+      next(err);
     }
   },
 
-  async delete(req, res) {
+  async delete(req, res, next) {
     try {
       const existente = await UserModel.findById(req.params.id);
       if (!existente) {
@@ -107,13 +100,11 @@ const UserController = {
       await UserModel.delete(req.params.id);
       res.status(204).send();
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao deletar usuário' });
+      next(err);
     }
   },
 
-  // NOVO: Retorna todos os chamados abertos por um usuário específico
-  async getChamadosDoUsuario(req, res) {
+  async getChamadosDoUsuario(req, res, next) {
     try {
       const { id } = req.params;
       const chamados = await ChamadoModel.findByUsuarioId(id);
@@ -122,8 +113,7 @@ const UserController = {
       }
       res.json(chamados);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao buscar chamados do usuário.' });
+      next(err);
     }
   }
 };
